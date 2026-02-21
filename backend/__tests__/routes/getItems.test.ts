@@ -4,7 +4,6 @@ import getItems from '../../src/routes/getItems';
 import db from '../../src/persistence';
 import { TodoItem } from '../../src/types/todo';
 
-// Mock the persistence layer
 jest.mock('../../src/persistence');
 const mockDb = db as jest.Mocked<typeof db>;
 

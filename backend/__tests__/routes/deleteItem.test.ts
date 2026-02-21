@@ -11,7 +11,7 @@ const mockDb = db as jest.Mocked<typeof db>;
 const app: Application = express();
 app.use(express.json());
 app.delete("/api/items/:id", deleteItem);
-app.use(errorHandler); // ← intercepte HttpError 404
+app.use(errorHandler);
 
 describe("DELETE /api/items/:id", () => {
   beforeEach(() => jest.clearAllMocks());

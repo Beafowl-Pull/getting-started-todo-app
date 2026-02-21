@@ -11,7 +11,7 @@ const mockDb = db as jest.Mocked<typeof db>;
 const app: Application = express();
 app.use(express.json());
 app.put("/api/items/:id", updateItem);
-app.use(errorHandler); // ← intercepte ZodError + HttpError
+app.use(errorHandler);
 
 describe("PUT /api/items/:id", () => {
   beforeEach(() => {

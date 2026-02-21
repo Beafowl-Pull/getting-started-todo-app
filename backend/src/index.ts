@@ -13,21 +13,17 @@ import deleteItem from "./routes/deleteItem";
 
 const app: Application = express();
 
-// Middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "static")));
 
-// Routes
 app.get("/api/greeting", getGreeting);
 app.get("/api/items", getItems);
 app.post("/api/items", addItem);
 app.put("/api/items/:id", updateItem);
 app.delete("/api/items/:id", deleteItem);
 
-// Global error handler — must be registered after routes
 app.use(errorHandler);
 
-// Exported for testing
 export const gracefulShutdown = (): void => {
   db.teardown()
     .catch(() => {

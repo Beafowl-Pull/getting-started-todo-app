@@ -13,7 +13,7 @@ const mockDb = db as jest.Mocked<typeof db>;
 const app: Application = express();
 app.use(express.json());
 app.post("/api/items", addItem);
-app.use(errorHandler); // ← branché ici pour intercepter les erreurs Zod
+app.use(errorHandler);
 
 describe("POST /api/items", () => {
   beforeEach(() => {

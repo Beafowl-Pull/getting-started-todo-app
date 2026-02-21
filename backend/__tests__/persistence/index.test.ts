@@ -1,6 +1,6 @@
 describe("persistence/index.ts", () => {
   beforeEach(() => {
-    jest.resetModules(); // Reset module registry between each test
+    jest.resetModules();
   });
 
   it("should load the sqlite adapter when MYSQL_HOST is not set", async () => {

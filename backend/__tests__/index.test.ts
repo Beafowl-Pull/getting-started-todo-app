@@ -36,7 +36,6 @@ jest.mock("../src/routes/deleteItem", () =>
 import app, { gracefulShutdown } from "../src/index";
 
 describe("src/index.ts", () => {
-  // --- Routes ---
   describe("Routes", () => {
     it("GET /api/greeting should be registered", async () => {
       const res = await request(app).get("/api/greeting");
@@ -71,7 +70,7 @@ describe("src/index.ts", () => {
     });
   });
 
-  // --- Middleware ---
+  describe("Middleware", () => {
   describe("Middleware", () => {
     it("should parse JSON bodies", async () => {
       const res = await request(app)
@@ -87,7 +86,6 @@ describe("src/index.ts", () => {
     });
   });
 
-  // --- Graceful shutdown ---
   describe("Graceful shutdown", () => {
     let mockExit: jest.SpyInstance;
 

@@ -1,9 +1,7 @@
 import { TodoItem } from '../../src/types/todo';
 
-// Mock wait-port to avoid real network calls
 jest.mock('wait-port', () => jest.fn().mockResolvedValue({}));
 
-// Mock mysql2 pool
 const mockQuery = jest.fn();
 const mockPoolEnd = jest.fn();
 
@@ -14,12 +12,10 @@ jest.mock('mysql2', () => ({
   })),
 }));
 
-// Mock fs to avoid reading real files
 jest.mock('fs', () => ({
   readFileSync: jest.fn((path: string) => `mocked-${path}`),
 }));
 
-// Set required env vars before importing
 process.env.MYSQL_HOST = 'localhost';
 process.env.MYSQL_USER = 'user';
 process.env.MYSQL_PASSWORD = 'password';
@@ -40,7 +36,6 @@ describe('MySQL persistence', () => {
     jest.clearAllMocks();
   });
 
-  // --- init ---
   describe('init()', () => {
     it('should create the pool and the table on success', async () => {
       mockQuery.mockImplementation((_sql: string, cb: Function) => cb(null));
@@ -61,7 +56,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- teardown ---
   describe('teardown()', () => {
     it('should close the pool successfully', async () => {
       mockPoolEnd.mockImplementation((cb: Function) => cb(null));
@@ -78,7 +72,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- getItems ---
   describe('getItems()', () => {
     it('should return all items with completed as boolean', async () => {
       mockQuery.mockImplementation((_sql: string, cb: Function) =>
@@ -110,7 +103,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- getItem ---
   describe('getItem()', () => {
     it('should return the correct item by id', async () => {
       mockQuery.mockImplementation((_sql: string, _params: unknown[], cb: Function) =>
@@ -139,7 +131,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- storeItem ---
   describe('storeItem()', () => {
     it('should insert the item successfully', async () => {
       mockQuery.mockImplementation((_sql: string, _params: unknown[], cb: Function) =>
@@ -176,7 +167,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- updateItem ---
   describe('updateItem()', () => {
     it('should update the item successfully', async () => {
       mockQuery.mockImplementation((_sql: string, _params: unknown[], cb: Function) =>
@@ -205,7 +195,6 @@ describe('MySQL persistence', () => {
     });
   });
 
-  // --- removeItem ---
   describe('removeItem()', () => {
     it('should return true when an item is deleted', async () => {
       mockQuery.mockImplementation((_sql: string, _params: unknown[], cb: Function) =>
@@ -235,7 +224,6 @@ describe('MySQL persistence', () => {
   });
 });
 
-// --- readSecret ---
 describe('readSecret()', () => {
   it('should throw if neither file path nor env variable is defined', async () => {
     const backup = {
