@@ -9,7 +9,7 @@ services:
 
   backend:
     build:
-      context: ./
+      context: ./backend
       target: backend-dev
     environment:
       MYSQL_HOST: mysql
@@ -30,10 +30,10 @@ services:
       traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
       traefik.http.services.backend.loadbalancer.server.port: 3000
 
-  client:
+  frontend:
     build:
-      context: ./
-      target: client-dev
+      context: ./frontend
+      target: frontend-dev
     develop:
       watch:
         - path: frontend/src

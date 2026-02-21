@@ -1,19 +1,6 @@
 FROM node:24 AS base
 WORKDIR /usr/local/app
 
-FROM base AS client-base
-COPY frontend/package.json client/package-lock.json ./
-RUN npm install
-COPY frontend/.eslintrc.cjs client/index.html client/vite.config.js ./
-COPY frontend/public ./public
-COPY frontend/src ./src
-
-FROM client-base AS client-dev
-CMD ["npm", "run", "dev"]
-
-FROM client-base AS client-build
-RUN npm run build
-
 FROM base AS backend-dev
 COPY backend/package.json backend/package-lock.json ./
 RUN npm install
