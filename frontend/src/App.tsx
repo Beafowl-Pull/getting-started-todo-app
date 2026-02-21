@@ -1,10 +1,11 @@
+import type { JSX } from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import { TodoListCard } from './components/TodoListCard';
-import { Greeting } from './components/Greeting';
+import { TodoListCard } from '@components/TodoListCard';
+import { Greeting } from '@components/Greeting';
 
-function App() {
+export default function App(): JSX.Element {
     return (
         <Container>
             <Row>
@@ -16,5 +17,3 @@ function App() {
         </Container>
     );
 }
-
-export default App;
