@@ -71,7 +71,6 @@ describe("src/index.ts", () => {
   });
 
   describe("Middleware", () => {
-  describe("Middleware", () => {
     it("should parse JSON bodies", async () => {
       const res = await request(app)
         .post("/api/items")
