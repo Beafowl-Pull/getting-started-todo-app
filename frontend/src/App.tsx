@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import { TodoListCard } from '@components/TodoListCard';
 import { Greeting } from '@components/Greeting';
 
-export default function App(): JSX.Element {
+export function App(): JSX.Element {
     return (
         <Container>
             <Row>

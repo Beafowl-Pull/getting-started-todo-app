@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -16,7 +17,10 @@ interface ItemDisplayProps {
 }
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps): JSX.Element {
+  const [error, setError] = useState<string | null>(null);
+
   const toggleCompletion = async (): Promise<void> => {
+    setError(null);
     try {
       const response = await fetch(`/api/items/${item.id}`, {
         method: 'PUT',
@@ -30,10 +34,12 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
       onItemUpdate(updated);
     } catch (err) {
       console.error('Failed to toggle item completion:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     }
   };
 
   const removeItem = async (): Promise<void> => {
+    setError(null);
     try {
       const response = await fetch(`/api/items/${item.id}`, { method: 'DELETE' });
 
@@ -42,6 +48,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
       onItemRemoval(item);
     } catch (err) {
       console.error('Failed to remove item:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     }
   };
 
@@ -67,12 +74,17 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
             size="sm"
             variant="link"
             onClick={removeItem}
-            aria-label="Remove Item"
+            aria-label={`Remove "${item.name}"`}
           >
             <FontAwesomeIcon icon={faTrash} className="text-danger" />
           </Button>
         </Col>
       </Row>
+      {error && (
+        <p className="text-danger small mt-1 mb-0" role="alert">
+          {error}
+        </p>
+      )}
     </Container>
   );
 }

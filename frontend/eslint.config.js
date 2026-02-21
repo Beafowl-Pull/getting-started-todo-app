@@ -8,8 +8,17 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import prettier from "eslint-config-prettier";
 
 export default [
-  // Ignore build output
-  { ignores: ["dist/**", "node_modules/**", "playwright-report/**"] },
+  // Ignore build output, tooling configs, and test infrastructure
+  {
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "playwright-report/**",
+      "playwright-tests/**",
+      "playwright.config.ts",
+      "vite.config.ts",
+    ],
+  },
 
   // Base JS rules
   js.configs.recommended,

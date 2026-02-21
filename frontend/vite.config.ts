@@ -32,7 +32,7 @@ export default defineConfig({
         additionalData: `@use "@styles/variables" as *;`,
         // Bootstrap 5.x uses legacy Sass color functions (red(), green(), blue())
         // that are deprecated in Sass 1.65+. Silence until Bootstrap 6 fixes this.
-        silenceDeprecations: ["color-functions", "global-builtin", "import"],
+        silenceDeprecations: ["color-functions", "global-builtin", "import", "if-function"],
       },
     },
   },

@@ -129,7 +129,7 @@ test.describe('ItemDisplay', () => {
         await page
             .locator('.item')
             .filter({ hasText: 'Buy groceries' })
-            .getByLabel('Remove Item')
+            .getByLabel('Remove "Buy groceries"')
             .click();
 
         await expect(page.getByText('Buy groceries')).not.toBeVisible();
@@ -156,7 +156,7 @@ test.describe('ItemDisplay', () => {
 
         await page.goto('/');
 
-        await page.getByLabel('Remove Item').click();
+        await page.getByLabel('Remove "Only item"').click();
 
         await expect(page.getByText('No items yet! Add one above!')).toBeVisible();
     });

@@ -1,7 +1,7 @@
 @use 'bootstrap/scss/bootstrap';
 
 body {
-  background-color: #f4f4f4;
-  margin-top: 50px;
-  font-family: 'Lato', sans-serif;
+  background-color: $background;
+  margin-top: $section-margin-top;
+  font-family: $font-family-base;
 }

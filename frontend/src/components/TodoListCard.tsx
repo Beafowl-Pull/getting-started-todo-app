@@ -11,14 +11,22 @@ export function TodoListCard(): JSX.Element {
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
 
   useEffect(() => {
-    fetch('/api/items')
+    const controller = new AbortController();
+
+    fetch('/api/items', { signal: controller.signal })
       .then(async (res): Promise<void> => {
         if (!res.ok) throw new Error(`Failed to fetch items: ${res.statusText}`);
         const data = (await res.json()) as TodoItem[];
         setItems(data);
         setLoadingState('success');
       })
-      .catch(() => setLoadingState('error'));
+      .catch((err: unknown): void => {
+        if (err instanceof Error && err.name === 'AbortError') return;
+        console.error('Failed to fetch items:', err);
+        setLoadingState('error');
+      });
+
+    return (): void => controller.abort();
   }, []);
 
   const onNewItem = useCallback((newItem: TodoItem): void => {
