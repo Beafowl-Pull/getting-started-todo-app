@@ -1,5 +1,7 @@
 import request from "supertest";
 
+process.env['JWT_SECRET'] = 'test-secret';
+
 const mockTeardown = jest.fn();
 
 jest.mock("../src/persistence", () => ({
@@ -12,7 +14,17 @@ jest.mock("../src/persistence", () => ({
     storeItem: jest.fn().mockResolvedValue(undefined),
     updateItem: jest.fn().mockResolvedValue(undefined),
     removeItem: jest.fn().mockResolvedValue(false),
+    createUser: jest.fn().mockResolvedValue(undefined),
+    findUserByEmail: jest.fn().mockResolvedValue(undefined),
+    findUserById: jest.fn().mockResolvedValue(undefined),
+    updateUser: jest.fn().mockResolvedValue(undefined),
+    deleteUser: jest.fn().mockResolvedValue(undefined),
+    getAllUserData: jest.fn().mockResolvedValue({ user: {}, todos: [] }),
   },
+}));
+
+jest.mock("../src/middleware/authenticate", () => ({
+  authenticate: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
 }));
 
 jest.mock("../src/routes/getGreeting", () =>
@@ -32,6 +44,24 @@ jest.mock("../src/routes/updateItem", () =>
 jest.mock("../src/routes/deleteItem", () =>
   jest.fn((_req: unknown, res: any) => res.sendStatus(204)),
 );
+jest.mock("../src/routes/auth/register", () =>
+  jest.fn((_req: unknown, res: any) => res.status(201).json({ token: 'tok', user: {} })),
+);
+jest.mock("../src/routes/auth/login", () =>
+  jest.fn((_req: unknown, res: any) => res.status(200).json({ token: 'tok', user: {} })),
+);
+jest.mock("../src/routes/me/getMe", () =>
+  jest.fn((_req: unknown, res: any) => res.status(200).json({})),
+);
+jest.mock("../src/routes/me/updateMe", () =>
+  jest.fn((_req: unknown, res: any) => res.status(200).json({})),
+);
+jest.mock("../src/routes/me/exportMe", () =>
+  jest.fn((_req: unknown, res: any) => res.status(200).json({})),
+);
+jest.mock("../src/routes/me/deleteMe", () =>
+  jest.fn((_req: unknown, res: any) => res.sendStatus(204)),
+);
 
 import app, { gracefulShutdown } from "../src/index";
 
@@ -40,6 +70,36 @@ describe("src/index.ts", () => {
     it("GET /api/greeting should be registered", async () => {
       const res = await request(app).get("/api/greeting");
       expect(res.status).toBe(200);
+    });
+
+    it("POST /api/auth/register should be registered", async () => {
+      const res = await request(app).post("/api/auth/register").send({});
+      expect(res.status).toBe(201);
+    });
+
+    it("POST /api/auth/login should be registered", async () => {
+      const res = await request(app).post("/api/auth/login").send({});
+      expect(res.status).toBe(200);
+    });
+
+    it("GET /api/me should be registered", async () => {
+      const res = await request(app).get("/api/me");
+      expect(res.status).toBe(200);
+    });
+
+    it("PATCH /api/me should be registered", async () => {
+      const res = await request(app).patch("/api/me").send({});
+      expect(res.status).toBe(200);
+    });
+
+    it("GET /api/me/export should be registered", async () => {
+      const res = await request(app).get("/api/me/export");
+      expect(res.status).toBe(200);
+    });
+
+    it("DELETE /api/me should be registered", async () => {
+      const res = await request(app).delete("/api/me");
+      expect(res.status).toBe(204);
     });
 
     it("GET /api/items should be registered", async () => {

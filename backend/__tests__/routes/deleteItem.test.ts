@@ -8,8 +8,14 @@ import { sampleTodo } from "../fixtures/todo";
 jest.mock("../../src/persistence");
 const mockDb = db as jest.Mocked<typeof db>;
 
+const USER_ID = 'user-uuid-1';
+
 const app: Application = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { sub: USER_ID, email: 'test@example.com' };
+  next();
+});
 app.delete("/api/items/:id", deleteItem);
 app.use(errorHandler);
 
@@ -22,7 +28,7 @@ describe("DELETE /api/items/:id", () => {
     const res = await request(app).delete(`/api/items/${sampleTodo.id}`);
 
     expect(res.status).toBe(204);
-    expect(mockDb.removeItem).toHaveBeenCalledWith(sampleTodo.id);
+    expect(mockDb.removeItem).toHaveBeenCalledWith(sampleTodo.id, USER_ID);
   });
 
   it("should return 404 if the item does not exist", async () => {

@@ -7,13 +7,19 @@ import { TodoItem } from '../../src/types/todo';
 jest.mock('../../src/persistence');
 const mockDb = db as jest.Mocked<typeof db>;
 
+const USER_ID = 'user-uuid-1';
+
 const app: Application = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { sub: USER_ID, email: 'test@example.com' };
+  next();
+});
 app.get('/api/items', getItems);
 
 const mockItems: TodoItem[] = [
-  { id: '1', name: 'Buy groceries', completed: false },
-  { id: '2', name: 'Do laundry', completed: true },
+  { id: '1', name: 'Buy groceries', completed: false, user_id: USER_ID },
+  { id: '2', name: 'Do laundry', completed: true, user_id: USER_ID },
 ];
 
 describe('GET /api/items', () => {
@@ -28,7 +34,7 @@ describe('GET /api/items', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockItems);
-    expect(mockDb.getItems).toHaveBeenCalledTimes(1);
+    expect(mockDb.getItems).toHaveBeenCalledWith(USER_ID);
   });
 
   it('should return an empty array when there are no items', async () => {

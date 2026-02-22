@@ -10,8 +10,14 @@ jest.mock("uuid", () => ({ v4: () => "mock-uuid-1234" }));
 
 const mockDb = db as jest.Mocked<typeof db>;
 
+const USER_ID = 'user-uuid-1';
+
 const app: Application = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { sub: USER_ID, email: 'test@example.com' };
+  next();
+});
 app.post("/api/items", addItem);
 app.use(errorHandler);
 
@@ -31,6 +37,7 @@ describe("POST /api/items", () => {
       id: "mock-uuid-1234",
       name: sampleTodo.name,
       completed: false,
+      user_id: USER_ID,
     });
     expect(mockDb.storeItem).toHaveBeenCalledTimes(1);
   });

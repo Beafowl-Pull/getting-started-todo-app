@@ -8,8 +8,14 @@ import { sampleTodo } from "../fixtures/todo";
 jest.mock("../../src/persistence");
 const mockDb = db as jest.Mocked<typeof db>;
 
+const USER_ID = 'user-uuid-1';
+
 const app: Application = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { sub: USER_ID, email: 'test@example.com' };
+  next();
+});
 app.put("/api/items/:id", updateItem);
 app.use(errorHandler);
 
@@ -31,7 +37,7 @@ describe("PUT /api/items/:id", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.name).toBe("Buy vegetables");
-    expect(mockDb.updateItem).toHaveBeenCalledWith(sampleTodo.id, {
+    expect(mockDb.updateItem).toHaveBeenCalledWith(sampleTodo.id, USER_ID, {
       name: "Buy vegetables",
       completed: false,
     });
@@ -61,7 +67,7 @@ describe("PUT /api/items/:id", () => {
       .put(`/api/items/${sampleTodo.id}`)
       .send({ name: "  Buy vegetables  " });
 
-    expect(mockDb.updateItem).toHaveBeenCalledWith(sampleTodo.id, {
+    expect(mockDb.updateItem).toHaveBeenCalledWith(sampleTodo.id, USER_ID, {
       name: "Buy vegetables",
       completed: false,
     });
