@@ -20,7 +20,13 @@ export const config = {
   sqlite: {
     dbLocation: process.env["SQLITE_DB_LOCATION"] ?? "/etc/todos/todo.db",
   },
-} as const;
+  get jwt(): { secret: string | undefined; expiresIn: string } {
+    return {
+      secret: process.env["JWT_SECRET"],
+      expiresIn: process.env["JWT_EXPIRES_IN"] ?? "15m",
+    };
+  },
+};
 
 // Each tuple is [envVar, fileVar] — at least one must be defined
 const MYSQL_REQUIRED_PAIRS: [string, string][] = [
@@ -31,6 +37,10 @@ const MYSQL_REQUIRED_PAIRS: [string, string][] = [
 ];
 
 export const validateConfig = (): void => {
+  if (!process.env["JWT_SECRET"]) {
+    throw new Error("Missing required environment variable: JWT_SECRET");
+  }
+
   if (!process.env["MYSQL_HOST"]) {return;}
 
   for (const [envVar, fileVar] of MYSQL_REQUIRED_PAIRS) {

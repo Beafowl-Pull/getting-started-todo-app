@@ -3,9 +3,10 @@ import db from "../persistence";
 import type { TodoItem } from "../types/todo";
 
 export default async function getItems(
-  _req: Request,
+  req: Request,
   res: Response<TodoItem[]>,
 ): Promise<void> {
-  const items: TodoItem[] = await db.getItems();
+  const userId = req.user!.sub;
+  const items: TodoItem[] = await db.getItems(userId);
   res.status(200).json(items);
 }

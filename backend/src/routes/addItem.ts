@@ -11,11 +11,13 @@ export default async function addItem(
 ): Promise<void> {
   try {
     const { name } = AddItemSchema.parse(req.body);
+    const userId = req.user!.sub;
 
     const item: TodoItem = {
       id: uuid(),
       name,
       completed: false,
+      user_id: userId,
     };
 
     await db.storeItem(item);

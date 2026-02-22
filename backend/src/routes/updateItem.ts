@@ -11,19 +11,20 @@ export default async function updateItem(
 ): Promise<void> {
   try {
     const id = req.params["id"] as string;
+    const userId = req.user!.sub;
     const updates = UpdateItemSchema.parse(req.body);
 
-    const existingItem = await db.getItem(id);
+    const existingItem = await db.getItem(id, userId);
     if (!existingItem) {
       throw new HttpError(404, `Item with id "${id}" not found`);
     }
 
-    await db.updateItem(id, {
+    await db.updateItem(id, userId, {
       name: updates.name ?? existingItem.name,
       completed: updates.completed ?? existingItem.completed,
     });
 
-    const updatedItem = (await db.getItem(id)) as TodoItem;
+    const updatedItem = (await db.getItem(id, userId)) as TodoItem;
     res.status(200).json(updatedItem);
   } catch (err) {
     next(err);

@@ -9,7 +9,8 @@ export default async function deleteItem(
 ): Promise<void> {
   try {
     const id = req.params["id"] as string;
-    const deleted = await db.removeItem(id);
+    const userId = req.user!.sub;
+    const deleted = await db.removeItem(id, userId);
 
     if (!deleted) {
       throw new HttpError(404, `Item with id "${id}" not found`);
