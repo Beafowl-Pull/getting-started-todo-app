@@ -42,7 +42,6 @@ export const UpdateMeSchema = z
   })
   .refine(
     (data) => {
-      // currentPassword required if changing email or password
       if (data.email !== undefined || data.newPassword !== undefined) {
         return data.currentPassword !== undefined && data.currentPassword.length > 0;
       }

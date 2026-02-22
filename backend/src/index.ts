@@ -25,11 +25,9 @@ app.use(express.static(path.join(__dirname, "static")));
 
 app.get("/api/greeting", getGreeting);
 
-// Auth routes (public)
 app.post("/api/auth/register", register);
 app.post("/api/auth/login", login);
 
-// Protected routes
 app.get("/api/me", authenticate, getMe);
 app.patch("/api/me", authenticate, updateMe);
 app.get("/api/me/export", authenticate, exportMe);

@@ -21,7 +21,6 @@ export default async function login(
 
     const user = await db.findUserByEmail(email);
 
-    // Always run bcrypt.compare to prevent timing oracle
     const hashToCompare = user ? user.password : DUMMY_HASH;
     const isValid = await bcrypt.compare(password, hashToCompare);
 

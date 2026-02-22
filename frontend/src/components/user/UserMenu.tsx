@@ -5,8 +5,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
-import { useAuth } from '../../hooks/useAuth';
-import { useApiFetch } from '../../hooks/useApiFetch';
+import { useAuth } from '@hooks/useAuth.ts';
+import { useApiFetch } from '@hooks/useApiFetch.ts';
 import { UpdateProfileForm } from './UpdateProfileForm';
 
 export function UserMenu(): JSX.Element {
@@ -42,7 +42,8 @@ export function UserMenu(): JSX.Element {
 
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
-        throw new Error(data.error ?? 'Failed to delete account');
+        setDeleteError(data.error ?? 'Failed to delete account');
+        return;
       }
 
       logout();
@@ -71,7 +72,6 @@ export function UserMenu(): JSX.Element {
         </Dropdown.Menu>
       </Dropdown>
 
-      {/* Edit Profile Modal */}
       <Modal show={showProfile} onHide={() => setShowProfile(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Profile</Modal.Title>
@@ -81,7 +81,6 @@ export function UserMenu(): JSX.Element {
         </Modal.Body>
       </Modal>
 
-      {/* Delete Account Modal */}
       <Modal show={showDelete} onHide={() => setShowDelete(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Delete Account</Modal.Title>

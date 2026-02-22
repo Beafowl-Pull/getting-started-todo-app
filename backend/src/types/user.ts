@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string; // bcrypt hash — never sent to client
+  password: string;
   created_at: Date;
 }
 
@@ -10,10 +10,10 @@ export interface PublicUser {
   id: string;
   name: string;
   email: string;
-  created_at: string; // ISO 8601
+  created_at: string;
 }
 
 export interface JwtPayload {
-  sub: string; // user.id
+  sub: string;
   email: string;
 }

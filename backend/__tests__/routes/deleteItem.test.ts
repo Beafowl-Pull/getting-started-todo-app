@@ -1,50 +1,62 @@
-import request from "supertest";
-import express, { Application } from "express";
-import deleteItem from "../../src/routes/deleteItem";
-import { errorHandler } from "../../src/middleware/errorHandler";
-import db from "../../src/persistence";
-import { sampleTodo } from "../fixtures/todo";
+import request = require('supertest');
+import express = require('express');
+import { Application } from 'express';
+import deleteItem from '../../src/routes/deleteItem';
+import { errorHandler } from '../../src/middleware/errorHandler';
 
-jest.mock("../../src/persistence");
+import db from '../../src/persistence';
+import { sampleTodo } from '../fixtures/todo';
+import type { JwtPayload } from '../../src/types/user';
+
+jest.mock('../../src/persistence');
 const mockDb = db as jest.Mocked<typeof db>;
+
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Express {
+        interface Request {
+            user?: JwtPayload;
+        }
+    }
+}
 
 const USER_ID = 'user-uuid-1';
 
 const app: Application = express();
 app.use(express.json());
 app.use((req, _res, next) => {
-  req.user = { sub: USER_ID, email: 'test@example.com' };
-  next();
+    req.user = { sub: USER_ID, email: 'test@example.com' };
+    next();
 });
-app.delete("/api/items/:id", deleteItem);
+app.delete('/api/items/:id', deleteItem);
 app.use(errorHandler);
 
-describe("DELETE /api/items/:id", () => {
-  beforeEach(() => jest.clearAllMocks());
+describe('DELETE /api/items/:id', () => {
+    beforeEach(() => jest.clearAllMocks());
 
-  it("should return 204 when item is successfully deleted", async () => {
-    mockDb.removeItem.mockResolvedValue(true);
+    it('should return 204 when item is successfully deleted', async (): Promise<void> => {
+        mockDb.removeItem.mockResolvedValue(true);
 
-    const res = await request(app).delete(`/api/items/${sampleTodo.id}`);
+        const res = await request(app).delete(`/api/items/${sampleTodo.id}`);
 
-    expect(res.status).toBe(204);
-    expect(mockDb.removeItem).toHaveBeenCalledWith(sampleTodo.id, USER_ID);
-  });
+        expect(res.status).toBe(204);
+        expect(mockDb.removeItem).toHaveBeenCalledWith(sampleTodo.id, USER_ID);
+    });
 
-  it("should return 404 if the item does not exist", async () => {
-    mockDb.removeItem.mockResolvedValue(false);
+    it('should return 404 if the item does not exist', async (): Promise<void> => {
+        mockDb.removeItem.mockResolvedValue(false);
 
-    const res = await request(app).delete("/api/items/nonexistent");
+        const res = await request(app).delete('/api/items/nonexistent');
 
-    expect(res.status).toBe(404);
-    expect(res.body).toHaveProperty("error");
-  });
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty('error');
+    });
 
-  it("should return 500 if the database throws", async () => {
-    mockDb.removeItem.mockRejectedValue(new Error("Database error"));
+    it('should return 500 if the database throws', async (): Promise<void> => {
+        mockDb.removeItem.mockRejectedValue(new Error('Database error'));
 
-    const res = await request(app).delete(`/api/items/${sampleTodo.id}`);
+        const res = await request(app).delete(`/api/items/${sampleTodo.id}`);
 
-    expect(res.status).toBe(500);
-  });
+        expect(res.status).toBe(500);
+    });
 });

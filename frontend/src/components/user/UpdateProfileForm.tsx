@@ -1,11 +1,12 @@
-import type { JSX, FormEvent } from 'react';
+import type { JSX } from 'react';
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
-import { useAuth } from '../../hooks/useAuth';
-import { useApiFetch } from '../../hooks/useApiFetch';
-import type { PublicUser } from '../../types/user';
+import { useAuth } from '@hooks/useAuth.ts';
+import { useApiFetch } from '@hooks/useApiFetch.ts';
+import type { PublicUser } from '@/types/user.ts';
 
 interface UpdateProfileFormProps {
   onClose: () => void;
@@ -22,39 +23,40 @@ export function UpdateProfileForm({ onClose }: UpdateProfileFormProps): JSX.Elem
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-    setSuccess(false);
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>): Promise<void> => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError(null);
+      setSuccess(false);
 
-    const body: Record<string, string> = {};
-    if (name !== user?.name) body['name'] = name;
-    if (email !== user?.email) body['email'] = email;
-    if (newPassword) body['newPassword'] = newPassword;
-    if (email !== user?.email || newPassword) body['currentPassword'] = currentPassword;
+      const body: Record<string, string> = {};
+      if (name !== user?.name) body['name'] = name;
+      if (email !== user?.email) body['email'] = email;
+      if (newPassword) body['newPassword'] = newPassword;
+      if (email !== user?.email || newPassword) body['currentPassword'] = currentPassword;
 
-    try {
-      const res = await apiFetch('/api/me', {
-        method: 'PATCH',
-        body: JSON.stringify(body),
-      });
+      try {
+          const res = await apiFetch('/api/me', {
+              method: 'PATCH',
+              body: JSON.stringify(body),
+          });
 
-      if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
-        throw new Error(data.error ?? 'Update failed');
+          if (!res.ok) {
+              const data = (await res.json()) as { error?: string };
+              setError(data.error ?? 'Update failed');
+              return;
+          }
+
+          const updated = (await res.json()) as PublicUser;
+          setUser(updated);
+          setSuccess(true);
+          setCurrentPassword('');
+          setNewPassword('');
+      } catch (err) {
+          setError(err instanceof Error ? err.message : 'Update failed');
+      } finally {
+          setSubmitting(false);
       }
-
-      const updated = (await res.json()) as PublicUser;
-      setUser(updated);
-      setSuccess(true);
-      setCurrentPassword('');
-      setNewPassword('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Update failed');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   return (

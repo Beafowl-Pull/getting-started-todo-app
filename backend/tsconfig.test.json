@@ -1,12 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noUncheckedIndexedAccess": false,
-    "types": ["jest", "node"]
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
+      "noUncheckedIndexedAccess": false,
+      "types": ["jest", "node"],
+      "lib": ["ES2020", "ES2015"],
   },
   "include": ["src/**/*.ts"]
 }

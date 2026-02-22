@@ -1,5 +1,6 @@
-import type { JSX, FormEvent } from 'react';
+import type { JSX } from 'react';
 import { useState } from 'react';
+import type { SyntheticEvent } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -16,7 +17,7 @@ export function AddItemForm({ onNewItem }: AddItemFormProps): JSX.Element {
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const submitNewItem = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    const submitNewItem = async (e: SyntheticEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         setSubmitting(true);
         setError(null);
@@ -28,10 +29,11 @@ export function AddItemForm({ onNewItem }: AddItemFormProps): JSX.Element {
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to add item: ${response.statusText}`);
+                setError(`Failed to add item: ${response.statusText}`);
+                return;
             }
 
-            const item: TodoItem = await response.json() as TodoItem;
+            const item: TodoItem = (await response.json()) as TodoItem;
             onNewItem(item);
             setNewItem('');
         } catch (err) {

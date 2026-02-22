@@ -19,7 +19,7 @@ interface SQLiteUserRow {
   name: string;
   email: string;
   password: string;
-  created_at: number; // unix timestamp (seconds)
+  created_at: number;
 }
 
 let db: Database.Database;
@@ -62,7 +62,6 @@ const init = (): Promise<void> => {
     "CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, user_id varchar(36))",
   );
 
-  // Migration: add user_id column if it doesn't exist
   const columns = db.pragma("table_info(todo_items)") as Array<{ name: string }>;
   const hasUserId = columns.some((col) => col.name === "user_id");
   if (!hasUserId) {
@@ -90,8 +89,6 @@ const teardown = (): Promise<void> => {
   db.close();
   return Promise.resolve();
 };
-
-// ---- Todo methods (scoped by userId) ----
 
 const getItems = (userId: string): Promise<TodoItem[]> => {
   const rows = db
@@ -131,8 +128,6 @@ const removeItem = (id: string, userId: string): Promise<boolean> => {
     .run(id, userId);
   return Promise.resolve(result.changes > 0);
 };
-
-// ---- User methods ----
 
 const createUser = (user: User): Promise<void> => {
   try {

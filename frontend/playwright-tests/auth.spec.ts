@@ -1,22 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { loginAs, MOCK_USER, FAKE_TOKEN } from './helpers/auth';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 async function mockUnauthenticated(page: import('@playwright/test').Page): Promise<void> {
     await page.route('/api/me', (route) => route.fulfill({ status: 401 }));
 }
 
 const MOCK_AUTH_RESPONSE = { token: FAKE_TOKEN, user: MOCK_USER };
 
-// ─── Auth screen ─────────────────────────────────────────────────────────────
-
 test.describe('Auth screen', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await mockUnauthenticated(page);
     });
 
-    test('shows login form by default when unauthenticated', async ({ page }) => {
+    test('shows login form by default when unauthenticated', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await expect(page.getByRole('heading', { name: 'Sign In' })).toBeVisible();
@@ -25,13 +21,13 @@ test.describe('Auth screen', () => {
         await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
     });
 
-    test('does not show the todo app when unauthenticated', async ({ page }) => {
+    test('does not show the todo app when unauthenticated', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await expect(page.getByPlaceholder('New Item')).not.toBeVisible();
     });
 
-    test('switches to the register form when clicking "Register"', async ({ page }) => {
+    test('switches to the register form when clicking "Register"', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await page.getByRole('button', { name: 'Register' }).click();
@@ -40,7 +36,7 @@ test.describe('Auth screen', () => {
         await expect(page.getByPlaceholder('Your name')).toBeVisible();
     });
 
-    test('switches back to login form from register', async ({ page }) => {
+    test('switches back to login form from register', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await page.getByRole('button', { name: 'Register' }).click();
@@ -50,29 +46,27 @@ test.describe('Auth screen', () => {
     });
 });
 
-// ─── Login flow ───────────────────────────────────────────────────────────────
-
 test.describe('Login', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await mockUnauthenticated(page);
     });
 
-    test('logs in successfully and shows the todo app', async ({ page }) => {
-        await page.route('/api/auth/login', (route) =>
+    test('logs in successfully and shows the todo app', async ({ page }): Promise<void>  => {
+        await page.route('/api/auth/login', (route): Promise<void> =>
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
                 body: JSON.stringify(MOCK_AUTH_RESPONSE),
             }),
         );
-        await page.route('/api/items', (route) =>
+        await page.route('/api/items', (route): Promise<void> =>
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
                 body: JSON.stringify([]),
             }),
         );
-        await page.route('/api/greeting', (route) =>
+        await page.route('/api/greeting', (route): Promise<void> =>
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
@@ -89,8 +83,8 @@ test.describe('Login', () => {
         await expect(page.getByRole('button', { name: 'Test User' })).toBeVisible();
     });
 
-    test('shows an error on invalid credentials', async ({ page }) => {
-        await page.route('/api/auth/login', (route) =>
+    test('shows an error on invalid credentials', async ({ page }): Promise<void> => {
+        await page.route('/api/auth/login', (route): Promise<void> =>
             route.fulfill({
                 status: 401,
                 contentType: 'application/json',
@@ -107,13 +101,13 @@ test.describe('Login', () => {
         await expect(page.getByRole('heading', { name: 'Sign In' })).toBeVisible();
     });
 
-    test('shows "Signing in..." and disables the button while submitting', async ({ page }) => {
+    test('shows "Signing in..." and disables the button while submitting', async ({ page }): Promise<void> => {
         let resolveRoute!: () => void;
         const routeBlocked = new Promise<void>((resolve) => {
             resolveRoute = resolve;
         });
 
-        await page.route('/api/auth/login', async (route) => {
+        await page.route('/api/auth/login', async (route): Promise<void> => {
             await routeBlocked;
             return route.fulfill({
                 status: 200,
@@ -121,7 +115,7 @@ test.describe('Login', () => {
                 body: JSON.stringify(MOCK_AUTH_RESPONSE),
             });
         });
-        await page.route('/api/items', (route) =>
+        await page.route('/api/items', (route): Promise<void> =>
             route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
         );
         await page.route('/api/greeting', (route) =>
@@ -145,14 +139,12 @@ test.describe('Login', () => {
     });
 });
 
-// ─── Register flow ────────────────────────────────────────────────────────────
-
 test.describe('Register', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await mockUnauthenticated(page);
     });
 
-    test('registers successfully and shows the todo app', async ({ page }) => {
+    test('registers successfully and shows the todo app', async ({ page }): Promise<void> => {
         await page.route('/api/auth/register', (route) =>
             route.fulfill({
                 status: 201,
@@ -181,7 +173,7 @@ test.describe('Register', () => {
         await expect(page.getByPlaceholder('New Item')).toBeVisible();
     });
 
-    test('shows an error when email is already taken', async ({ page }) => {
+    test('shows an error when email is already taken', async ({ page }): Promise<void> => {
         await page.route('/api/auth/register', (route) =>
             route.fulfill({
                 status: 409,
@@ -202,24 +194,22 @@ test.describe('Register', () => {
     });
 });
 
-// ─── Logout flow ──────────────────────────────────────────────────────────────
-
 test.describe('Logout', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
-        await page.route('/api/greeting', (route) =>
+        await page.route('/api/greeting', (route): Promise<void> =>
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
                 body: JSON.stringify({ greeting: 'Hello!' }),
             }),
         );
-        await page.route('/api/items', (route) =>
+        await page.route('/api/items', (route): Promise<void> =>
             route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
         );
     });
 
-    test('clicking Sign Out returns to the auth screen', async ({ page }) => {
+    test('clicking Sign Out returns to the auth screen', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await page.getByRole('button', { name: 'Test User' }).click();
@@ -230,10 +220,8 @@ test.describe('Logout', () => {
     });
 });
 
-// ─── GDPR export ──────────────────────────────────────────────────────────────
-
 test.describe('GDPR export', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
@@ -242,10 +230,10 @@ test.describe('GDPR export', () => {
                 body: JSON.stringify({ greeting: 'Hello!' }),
             }),
         );
-        await page.route('/api/items', (route) =>
+        await page.route('/api/items', (route): Promise<void> =>
             route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
         );
-        await page.route('/api/me/export', (route) =>
+        await page.route('/api/me/export', (route): Promise<void> =>
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
@@ -258,7 +246,7 @@ test.describe('GDPR export', () => {
         );
     });
 
-    test('triggers a file download when clicking Export My Data', async ({ page }) => {
+    test('triggers a file download when clicking Export My Data', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         const downloadPromise = page.waitForEvent('download');
@@ -270,10 +258,8 @@ test.describe('GDPR export', () => {
     });
 });
 
-// ─── Delete account ───────────────────────────────────────────────────────────
-
 test.describe('Delete account', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
@@ -287,7 +273,7 @@ test.describe('Delete account', () => {
         );
     });
 
-    test('opens delete account modal', async ({ page }) => {
+    test('opens delete account modal', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await page.getByRole('button', { name: 'Test User' }).click();
@@ -297,7 +283,7 @@ test.describe('Delete account', () => {
         await expect(page.getByText(/permanently delete your account/i)).toBeVisible();
     });
 
-    test('delete button is disabled until password is entered', async ({ page }) => {
+    test('delete button is disabled until password is entered', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await page.getByRole('button', { name: 'Test User' }).click();
@@ -310,7 +296,7 @@ test.describe('Delete account', () => {
         await expect(page.getByRole('button', { name: /delete my account/i })).toBeEnabled();
     });
 
-    test('deletes account and shows auth screen on success', async ({ page }) => {
+    test('deletes account and shows auth screen on success', async ({ page }): Promise<void> => {
         await page.route('/api/me', async (route) => {
             if (route.request().method() === 'DELETE') {
                 return route.fulfill({ status: 204 });
@@ -332,7 +318,7 @@ test.describe('Delete account', () => {
         await expect(page.getByRole('heading', { name: 'Sign In' })).toBeVisible();
     });
 
-    test('shows error if password is wrong', async ({ page }) => {
+    test('shows error if password is wrong', async ({ page }): Promise<void> => {
         await page.route('/api/me', async (route) => {
             if (route.request().method() === 'DELETE') {
                 return route.fulfill({

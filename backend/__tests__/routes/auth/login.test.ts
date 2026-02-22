@@ -1,6 +1,7 @@
-import request from 'supertest';
-import express, { Application } from 'express';
-import bcrypt from 'bcrypt';
+import request = require('supertest');
+import express = require('express');
+import { Application } from 'express';
+import bcrypt = require('bcrypt');
 import login from '../../../src/routes/auth/login';
 import { errorHandler } from '../../../src/middleware/errorHandler';
 import db from '../../../src/persistence';
@@ -18,100 +19,96 @@ app.post('/api/auth/login', login);
 app.use(errorHandler);
 
 describe('POST /api/auth/login', () => {
-  let hashedPassword: string;
+    let hashedPassword: string;
 
-  beforeAll(async () => {
-    hashedPassword = await bcrypt.hash('password123', 10);
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should return 200 with token and public user on valid credentials', async () => {
-    mockDb.findUserByEmail.mockResolvedValue({
-      id: 'user-1',
-      name: 'Test User',
-      email: 'test@example.com',
-      password: hashedPassword,
-      created_at: new Date('2024-01-01'),
+    beforeAll(async () => {
+        hashedPassword = await bcrypt.hash('password123', 10);
     });
 
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'test@example.com', password: 'password123' });
-
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
-    expect(res.body.user).toMatchObject({
-      id: 'user-1',
-      name: 'Test User',
-      email: 'test@example.com',
-    });
-    expect(res.body.user).not.toHaveProperty('password');
-  });
-
-  it('should return 401 with "Invalid credentials" if user does not exist', async () => {
-    mockDb.findUserByEmail.mockResolvedValue(undefined);
-
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'nobody@example.com', password: 'password123' });
-
-    expect(res.status).toBe(401);
-    expect(res.body.error).toBe('Invalid credentials');
-  });
-
-  it('should return 401 with "Invalid credentials" if password is wrong', async () => {
-    mockDb.findUserByEmail.mockResolvedValue({
-      id: 'user-1',
-      name: 'Test User',
-      email: 'test@example.com',
-      password: hashedPassword,
-      created_at: new Date('2024-01-01'),
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'test@example.com', password: 'wrongpassword' });
+    it('should return 200 with token and public user on valid credentials', async (): Promise<void> => {
+        mockDb.findUserByEmail.mockResolvedValue({
+            id: 'user-1',
+            name: 'Test User',
+            email: 'test@example.com',
+            password: hashedPassword,
+            created_at: new Date('2024-01-01'),
+        });
 
-    expect(res.status).toBe(401);
-    expect(res.body.error).toBe('Invalid credentials');
-  });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'test@example.com', password: 'password123' });
 
-  it('should normalize email to lowercase', async () => {
-    mockDb.findUserByEmail.mockResolvedValue(undefined);
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('token');
+        expect(res.body.user).toMatchObject({
+            id: 'user-1',
+            name: 'Test User',
+            email: 'test@example.com',
+        });
+        expect(res.body.user).not.toHaveProperty('password');
+    });
 
-    await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'TEST@EXAMPLE.COM', password: 'password123' });
+    it('should return 401 with "Invalid credentials" if user does not exist', async (): Promise<void> => {
+        mockDb.findUserByEmail.mockResolvedValue(undefined);
 
-    expect(mockDb.findUserByEmail).toHaveBeenCalledWith('test@example.com');
-  });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'nobody@example.com', password: 'password123' });
 
-  it('should return 400 if email is missing', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ password: 'password123' });
+        expect(res.status).toBe(401);
+        expect(res.body.error).toBe('Invalid credentials');
+    });
 
-    expect(res.status).toBe(400);
-  });
+    it('should return 401 with "Invalid credentials" if password is wrong', async (): Promise<void> => {
+        mockDb.findUserByEmail.mockResolvedValue({
+            id: 'user-1',
+            name: 'Test User',
+            email: 'test@example.com',
+            password: hashedPassword,
+            created_at: new Date('2024-01-01'),
+        });
 
-  it('should return 400 if password is missing', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'test@example.com' });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'test@example.com', password: 'wrongpassword' });
 
-    expect(res.status).toBe(400);
-  });
+        expect(res.status).toBe(401);
+        expect(res.body.error).toBe('Invalid credentials');
+    });
 
-  it('should return 500 if db throws', async () => {
-    mockDb.findUserByEmail.mockRejectedValue(new Error('DB error'));
+    it('should normalize email to lowercase', async (): Promise<void> => {
+        mockDb.findUserByEmail.mockResolvedValue(undefined);
 
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'test@example.com', password: 'password123' });
+        await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'TEST@EXAMPLE.COM', password: 'password123' });
 
-    expect(res.status).toBe(500);
-  });
+        expect(mockDb.findUserByEmail).toHaveBeenCalledWith('test@example.com');
+    });
+
+    it('should return 400 if email is missing', async (): Promise<void> => {
+        const res = await request(app).post('/api/auth/login').send({ password: 'password123' });
+
+        expect(res.status).toBe(400);
+    });
+
+    it('should return 400 if password is missing', async (): Promise<void> => {
+        const res = await request(app).post('/api/auth/login').send({ email: 'test@example.com' });
+
+        expect(res.status).toBe(400);
+    });
+
+    it('should return 500 if db throws', async (): Promise<void> => {
+        mockDb.findUserByEmail.mockRejectedValue(new Error('DB error'));
+
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'test@example.com', password: 'password123' });
+
+        expect(res.status).toBe(500);
+    });
 });

@@ -1,9 +1,10 @@
-import type { JSX, FormEvent } from 'react';
+import type { JSX } from 'react';
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@hooks/useAuth.ts';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -17,18 +18,18 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps): JSX.Elemen
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>): Promise<void> => {
+      e.preventDefault();
+      setSubmitting(true);
+      setError(null);
 
-    try {
-      await register(name, email, password);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
-    } finally {
-      setSubmitting(false);
-    }
+      try {
+          await register(name, email, password);
+      } catch (err) {
+          setError(err instanceof Error ? err.message : 'Registration failed');
+      } finally {
+          setSubmitting(false);
+      }
   };
 
   return (

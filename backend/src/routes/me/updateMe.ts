@@ -29,7 +29,6 @@ export default async function updateMe(
     }
 
     if (updates.email !== undefined || updates.newPassword !== undefined) {
-      // Verify current password
       const isValid = await bcrypt.compare(
         updates.currentPassword!,
         user.password,

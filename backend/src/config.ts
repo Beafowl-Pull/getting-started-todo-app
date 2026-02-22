@@ -28,7 +28,6 @@ export const config = {
   },
 };
 
-// Each tuple is [envVar, fileVar] — at least one must be defined
 const MYSQL_REQUIRED_PAIRS: [string, string][] = [
   ["MYSQL_HOST", "MYSQL_HOST_FILE"],
   ["MYSQL_USER", "MYSQL_USER_FILE"],

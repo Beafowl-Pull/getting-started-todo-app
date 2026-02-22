@@ -7,16 +7,18 @@ const MOCK_ITEMS = [
 ];
 
 test.describe('ItemDisplay', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
-        await page.route('/api/greeting', (route) =>
-            route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({ greeting: 'Hello!' }),
-            }),
+        await page.route(
+            '/api/greeting',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ greeting: 'Hello!' }),
+                }),
         );
-        await page.route('/api/items', (route) => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'GET') {
                 return route.fulfill({
                     status: 200,
@@ -28,14 +30,16 @@ test.describe('ItemDisplay', () => {
         });
     });
 
-    test('displays item names', async ({ page }) => {
+    test('displays item names', async ({ page }): Promise<void> => {
         await page.goto('/');
 
         await expect(page.getByText('Buy groceries')).toBeVisible();
         await expect(page.getByText('Walk the dog')).toBeVisible();
     });
 
-    test('applies the "completed" CSS class on completed items', async ({ page }) => {
+    test('applies the "completed" CSS class on completed items', async ({
+        page,
+    }): Promise<void> => {
         await page.goto('/');
 
         const completedItem = page.locator('.item.completed');
@@ -43,7 +47,9 @@ test.describe('ItemDisplay', () => {
         await expect(completedItem).toContainText('Walk the dog');
     });
 
-    test('does not apply the "completed" class on incomplete items', async ({ page }) => {
+    test('does not apply the "completed" class on incomplete items', async ({
+        page,
+    }): Promise<void> => {
         await page.goto('/');
 
         const incompleteItem = page.locator('.item:not(.completed)');
@@ -52,7 +58,7 @@ test.describe('ItemDisplay', () => {
 
     test('shows the correct aria-label on the toggle button for an incomplete item', async ({
         page,
-    }) => {
+    }): Promise<void> => {
         await page.goto('/');
 
         const toggleBtn = page
@@ -65,7 +71,7 @@ test.describe('ItemDisplay', () => {
 
     test('shows the correct aria-label on the toggle button for a completed item', async ({
         page,
-    }) => {
+    }): Promise<void> => {
         await page.goto('/');
 
         const toggleBtn = page
@@ -76,18 +82,20 @@ test.describe('ItemDisplay', () => {
         await expect(toggleBtn).toBeVisible();
     });
 
-    test('toggling an incomplete item marks it as complete', async ({ page }) => {
-        await page.route('/api/items/1', (route) =>
-            route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                    id: '1',
-                    name: 'Buy groceries',
-                    completed: true,
-                    user_id: 'user-1',
+    test('toggling an incomplete item marks it as complete', async ({ page }): Promise<void> => {
+        await page.route(
+            '/api/items/1',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        id: '1',
+                        name: 'Buy groceries',
+                        completed: true,
+                        user_id: 'user-1',
+                    }),
                 }),
-            }),
         );
 
         await page.goto('/');
@@ -101,18 +109,20 @@ test.describe('ItemDisplay', () => {
         await expect(page.locator('.item.completed')).toHaveCount(2);
     });
 
-    test('toggling a completed item marks it as incomplete', async ({ page }) => {
-        await page.route('/api/items/2', (route) =>
-            route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                    id: '2',
-                    name: 'Walk the dog',
-                    completed: false,
-                    user_id: 'user-1',
+    test('toggling a completed item marks it as incomplete', async ({ page }): Promise<void> => {
+        await page.route(
+            '/api/items/2',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        id: '2',
+                        name: 'Walk the dog',
+                        completed: false,
+                        user_id: 'user-1',
+                    }),
                 }),
-            }),
         );
 
         await page.goto('/');
@@ -126,8 +136,10 @@ test.describe('ItemDisplay', () => {
         await expect(page.locator('.item.completed')).toHaveCount(0);
     });
 
-    test('clicking "Remove Item" removes the item from the list', async ({ page }) => {
-        await page.route('/api/items/1', (route) => {
+    test('clicking "Remove Item" removes the item from the list', async ({
+        page,
+    }): Promise<void> => {
+        await page.route('/api/items/1', (route): Promise<void> => {
             if (route.request().method() === 'DELETE') {
                 return route.fulfill({ status: 200 });
             }
@@ -148,8 +160,8 @@ test.describe('ItemDisplay', () => {
         await expect(page.getByText('Walk the dog')).toBeVisible();
     });
 
-    test('shows "No items yet!" after all items are removed', async ({ page }) => {
-        await page.route('/api/items', (route) => {
+    test('shows "No items yet!" after all items are removed', async ({ page }): Promise<void> => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'GET') {
                 return route.fulfill({
                     status: 200,
@@ -161,7 +173,7 @@ test.describe('ItemDisplay', () => {
             }
             return route.continue();
         });
-        await page.route('/api/items/1', (route) => {
+        await page.route('/api/items/1', (route): Promise<void> => {
             if (route.request().method() === 'DELETE') {
                 return route.fulfill({ status: 200 });
             }

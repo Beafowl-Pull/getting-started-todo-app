@@ -1,0 +1,26 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        /* Override for test environment */
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "target": "ES2020",
+        "lib": ["ES2020"],
+
+        /* Relax for tests */
+        "noEmit": true,
+        "isolatedModules": false,
+        "allowImportingTsExtensions": false,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+
+        /* Interop */
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+
+        /* Remove JSX - not needed in e2e tests */
+        "jsx": "preserve"
+    },
+    "include": ["playwright-tests/**/*.ts", "playwright.config.ts"],
+    "exclude": ["node_modules", "dist", "src"]
+}

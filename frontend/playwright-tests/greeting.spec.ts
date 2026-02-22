@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers/auth';
 
 test.describe('Greeting', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
         await page.route('/api/items', (route) =>
             route.fulfill({
@@ -13,7 +13,7 @@ test.describe('Greeting', () => {
         );
     });
 
-    test('displays the greeting returned by the API', async ({ page }) => {
+    test('displays the greeting returned by the API', async ({ page }): Promise<void>  => {
         await page.route('/api/greeting', (route) =>
             route.fulfill({
                 status: 200,
@@ -27,13 +27,15 @@ test.describe('Greeting', () => {
         await expect(page.getByRole('heading', { name: 'Hello, World!' })).toBeVisible();
     });
 
-    test('renders the greeting as an h1 element', async ({ page }) => {
-        await page.route('/api/greeting', (route) =>
-            route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({ greeting: 'Bonjour!' }),
-            }),
+    test('renders the greeting as an h1 element', async ({ page }): Promise<void> => {
+        await page.route(
+            '/api/greeting',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ greeting: 'Bonjour!' }),
+                }),
         );
 
         await page.goto('/');
@@ -42,12 +44,15 @@ test.describe('Greeting', () => {
         await expect(heading).toBeVisible();
     });
 
-    test('displays an error message when the API returns an error', async ({ page }) => {
-        await page.route('/api/greeting', (route) =>
-            route.fulfill({
-                status: 500,
-                statusText: 'Internal Server Error',
-            }),
+    test('displays an error message when the API returns an error', async ({
+        page,
+    }): Promise<void> => {
+        await page.route(
+            '/api/greeting',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 500,
+                }),
         );
 
         await page.goto('/');
@@ -57,8 +62,10 @@ test.describe('Greeting', () => {
         await expect(error).toContainText('Failed to fetch greeting');
     });
 
-    test('displays an error message when the network request fails', async ({ page }) => {
-        await page.route('/api/greeting', (route) => route.abort());
+    test('displays an error message when the network request fails', async ({
+        page,
+    }): Promise<void> => {
+        await page.route('/api/greeting', (route): Promise<void> => route.abort());
 
         await page.goto('/');
 
@@ -66,13 +73,13 @@ test.describe('Greeting', () => {
         await expect(error).toBeVisible();
     });
 
-    test('does not render an h1 while the greeting is loading', async ({ page }) => {
+    test('does not render an h1 while the greeting is loading', async ({ page }): Promise<void> => {
         let resolveRoute!: () => void;
         const routeBlocked = new Promise<void>((resolve) => {
             resolveRoute = resolve;
         });
 
-        await page.route('/api/greeting', async (route) => {
+        await page.route('/api/greeting', async (route): Promise<void> => {
             await routeBlocked;
             await route.fulfill({
                 status: 200,

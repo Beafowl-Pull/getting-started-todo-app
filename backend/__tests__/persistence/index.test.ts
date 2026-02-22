@@ -3,117 +3,108 @@ describe("persistence/index.ts", () => {
     jest.resetModules();
   });
 
-  it("should load the sqlite adapter when MYSQL_HOST is not set", async () => {
-    delete process.env.MYSQL_HOST;
+  it('should load the sqlite adapter when MYSQL_HOST is not set', async (): Promise<void> => {
+      delete process.env.MYSQL_HOST;
 
-    const sqlite = await import("../../src/persistence/sqlite");
-    const { default: adapter } = await import("../../src/persistence");
+      const sqlite = await import('../../src/persistence/sqlite');
+      const { default: adapter } = await import('../../src/persistence');
 
-    expect(adapter).toBe(sqlite.default);
+      expect(adapter).toBe(sqlite.default);
   });
 
-  it("should load the mysql adapter when MYSQL_HOST is set", async () => {
-    process.env.MYSQL_HOST = "localhost";
+  it('should load the mysql adapter when MYSQL_HOST is set', async (): Promise<void> => {
+      process.env.MYSQL_HOST = 'localhost';
 
-    const mysql = await import("../../src/persistence/mysql");
-    const { default: adapter } = await import("../../src/persistence");
+      const mysql = await import('../../src/persistence/mysql');
+      const { default: adapter } = await import('../../src/persistence');
 
-    expect(adapter).toBe(mysql.default);
+      expect(adapter).toBe(mysql.default);
 
-    delete process.env.MYSQL_HOST;
+      delete process.env.MYSQL_HOST;
   });
 
-  it("should export an adapter with the correct DbAdapter interface", async () => {
-    delete process.env.MYSQL_HOST;
+  it('should export an adapter with the correct DbAdapter interface', async (): Promise<void> => {
+      delete process.env.MYSQL_HOST;
 
-    const { default: adapter } = await import("../../src/persistence");
+      const { default: adapter } = await import('../../src/persistence');
 
-    expect(typeof adapter.init).toBe("function");
-    expect(typeof adapter.teardown).toBe("function");
-    expect(typeof adapter.getItems).toBe("function");
-    expect(typeof adapter.getItem).toBe("function");
-    expect(typeof adapter.storeItem).toBe("function");
-    expect(typeof adapter.updateItem).toBe("function");
-    expect(typeof adapter.removeItem).toBe("function");
-    expect(typeof adapter.createUser).toBe("function");
-    expect(typeof adapter.findUserByEmail).toBe("function");
-    expect(typeof adapter.findUserById).toBe("function");
-    expect(typeof adapter.updateUser).toBe("function");
-    expect(typeof adapter.deleteUser).toBe("function");
-    expect(typeof adapter.getAllUserData).toBe("function");
+      expect(typeof adapter.init).toBe('function');
+      expect(typeof adapter.teardown).toBe('function');
+      expect(typeof adapter.getItems).toBe('function');
+      expect(typeof adapter.getItem).toBe('function');
+      expect(typeof adapter.storeItem).toBe('function');
+      expect(typeof adapter.updateItem).toBe('function');
+      expect(typeof adapter.removeItem).toBe('function');
+      expect(typeof adapter.createUser).toBe('function');
+      expect(typeof adapter.findUserByEmail).toBe('function');
+      expect(typeof adapter.findUserById).toBe('function');
+      expect(typeof adapter.updateUser).toBe('function');
+      expect(typeof adapter.deleteUser).toBe('function');
+      expect(typeof adapter.getAllUserData).toBe('function');
   });
 });
 
-// Structural regression test: route tests must never import the real DB adapters
 describe("persistence isolation — structural regression", () => {
   it("should not import better-sqlite3 in route test modules", () => {
-    // This test verifies that no route test file has accidentally imported
-    // the real sqlite adapter. Route tests must mock ../../src/persistence.
-    // If this test fails, a route test is coupling itself to the real DB.
     const loadedModules = Object.keys(require.cache);
     const sqliteModules = loadedModules.filter(
       (m) => m.includes("better-sqlite3") && !m.includes("node_modules") === false
         && m.includes("node_modules/better-sqlite3"),
     );
-    // better-sqlite3 may be loaded by persistence tests — that is allowed.
-    // What we assert is that the module registry never contains a route test
-    // that directly required better-sqlite3 outside of the persistence layer.
-    // Since this test file itself never imports sqlite, its presence in cache
-    // would only come from a misconfigured route test in the same Jest worker.
-    expect(sqliteModules.length).toBeGreaterThanOrEqual(0); // always passes structurally
+    expect(sqliteModules.length).toBeGreaterThanOrEqual(0);
   });
 
-  it("inMemory adapter implements the full DbAdapter interface", async () => {
-    const { default: createInMemoryAdapter } = await import(
-      "../../src/persistence/inMemory"
-    );
-    const adapter = createInMemoryAdapter();
+  it('inMemory adapter implements the full DbAdapter interface', async (): Promise<void> => {
+      const { default: createInMemoryAdapter } = await import('../../src/persistence/inMemory');
+      const adapter = createInMemoryAdapter();
 
-    expect(typeof adapter.init).toBe("function");
-    expect(typeof adapter.teardown).toBe("function");
-    expect(typeof adapter.getItems).toBe("function");
-    expect(typeof adapter.getItem).toBe("function");
-    expect(typeof adapter.storeItem).toBe("function");
-    expect(typeof adapter.updateItem).toBe("function");
-    expect(typeof adapter.removeItem).toBe("function");
-    expect(typeof adapter.createUser).toBe("function");
-    expect(typeof adapter.findUserByEmail).toBe("function");
-    expect(typeof adapter.findUserById).toBe("function");
-    expect(typeof adapter.updateUser).toBe("function");
-    expect(typeof adapter.deleteUser).toBe("function");
-    expect(typeof adapter.getAllUserData).toBe("function");
+      expect(typeof adapter.init).toBe('function');
+      expect(typeof adapter.teardown).toBe('function');
+      expect(typeof adapter.getItems).toBe('function');
+      expect(typeof adapter.getItem).toBe('function');
+      expect(typeof adapter.storeItem).toBe('function');
+      expect(typeof adapter.updateItem).toBe('function');
+      expect(typeof adapter.removeItem).toBe('function');
+      expect(typeof adapter.createUser).toBe('function');
+      expect(typeof adapter.findUserByEmail).toBe('function');
+      expect(typeof adapter.findUserById).toBe('function');
+      expect(typeof adapter.updateUser).toBe('function');
+      expect(typeof adapter.deleteUser).toBe('function');
+      expect(typeof adapter.getAllUserData).toBe('function');
   });
 
-  it("inMemory adapter correctly isolates todos by userId", async () => {
-    const { default: createInMemoryAdapter } = await import(
-      "../../src/persistence/inMemory"
-    );
-    const adapter = createInMemoryAdapter();
+  it('inMemory adapter correctly isolates todos by userId', async (): Promise<void> => {
+      const { default: createInMemoryAdapter } = await import('../../src/persistence/inMemory');
+      const adapter = createInMemoryAdapter();
 
-    await adapter.storeItem({ id: "1", name: "Todo A", completed: false, user_id: "user-1" });
-    await adapter.storeItem({ id: "2", name: "Todo B", completed: false, user_id: "user-2" });
+      await adapter.storeItem({ id: '1', name: 'Todo A', completed: false, user_id: 'user-1' });
+      await adapter.storeItem({ id: '2', name: 'Todo B', completed: false, user_id: 'user-2' });
 
-    const user1Items = await adapter.getItems("user-1");
-    const user2Items = await adapter.getItems("user-2");
+      const user1Items = await adapter.getItems('user-1');
+      const user2Items = await adapter.getItems('user-2');
 
-    expect(user1Items).toHaveLength(1);
-    expect(user1Items[0]!.name).toBe("Todo A");
-    expect(user2Items).toHaveLength(1);
-    expect(user2Items[0]!.name).toBe("Todo B");
+      expect(user1Items).toHaveLength(1);
+      expect(user1Items[0]!.name).toBe('Todo A');
+      expect(user2Items).toHaveLength(1);
+      expect(user2Items[0]!.name).toBe('Todo B');
   });
 
-  it("inMemory adapter deleteUser cascades todos", async () => {
-    const { default: createInMemoryAdapter } = await import(
-      "../../src/persistence/inMemory"
-    );
-    const adapter = createInMemoryAdapter();
+  it('inMemory adapter deleteUser cascades todos', async (): Promise<void> => {
+      const { default: createInMemoryAdapter } = await import('../../src/persistence/inMemory');
+      const adapter = createInMemoryAdapter();
 
-    await adapter.createUser({ id: "u1", name: "Alice", email: "a@test.com", password: "x", created_at: new Date() });
-    await adapter.storeItem({ id: "t1", name: "Task", completed: false, user_id: "u1" });
+      await adapter.createUser({
+          id: 'u1',
+          name: 'Alice',
+          email: 'a@test.com',
+          password: 'x',
+          created_at: new Date(),
+      });
+      await adapter.storeItem({ id: 't1', name: 'Task', completed: false, user_id: 'u1' });
 
-    await adapter.deleteUser("u1");
+      await adapter.deleteUser('u1');
 
-    expect(await adapter.findUserById("u1")).toBeUndefined();
-    expect(await adapter.getItems("u1")).toHaveLength(0);
+      expect(await adapter.findUserById('u1')).toBeUndefined();
+      expect(await adapter.getItems('u1')).toHaveLength(0);
   });
 });

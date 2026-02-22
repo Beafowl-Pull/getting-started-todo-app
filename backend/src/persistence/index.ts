@@ -7,10 +7,9 @@ export interface DbAdapter {
   init: () => Promise<void>;
   teardown: () => Promise<void>;
 
-  // Todos — all scoped by userId (tenant isolation at DB level)
   getItems: (userId: string) => Promise<TodoItem[]>;
   getItem: (id: string, userId: string) => Promise<TodoItem | undefined>;
-  storeItem: (item: TodoItem) => Promise<void>; // item already has user_id
+  storeItem: (item: TodoItem) => Promise<void>;
   updateItem: (
     id: string,
     userId: string,
@@ -18,7 +17,6 @@ export interface DbAdapter {
   ) => Promise<void>;
   removeItem: (id: string, userId: string) => Promise<boolean>;
 
-  // Users
   createUser: (user: User) => Promise<void>;
   findUserByEmail: (email: string) => Promise<User | undefined>;
   findUserById: (id: string) => Promise<User | undefined>;
@@ -26,7 +24,7 @@ export interface DbAdapter {
     id: string,
     fields: Partial<Pick<User, "name" | "email" | "password">>,
   ) => Promise<void>;
-  deleteUser: (id: string) => Promise<void>; // cascades todos
+  deleteUser: (id: string) => Promise<void>;
   getAllUserData: (
     userId: string,
   ) => Promise<{ user: PublicUser; todos: TodoItem[] }>;

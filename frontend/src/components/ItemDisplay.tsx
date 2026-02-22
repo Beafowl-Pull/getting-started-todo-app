@@ -29,7 +29,10 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
         body: JSON.stringify({ name: item.name, completed: !item.completed }),
       });
 
-      if (!response.ok) throw new Error(`Failed to update item: ${response.statusText}`);
+      if (!response.ok) {
+          setError(`Failed to update item: ${response.statusText}`);
+          return;
+      }
 
       const updated = (await response.json()) as TodoItem;
       onItemUpdate(updated);
@@ -44,7 +47,10 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
     try {
       const response = await apiFetch(`/api/items/${item.id}`, { method: 'DELETE' });
 
-      if (!response.ok) throw new Error(`Failed to delete item: ${response.statusText}`);
+      if (!response.ok) {
+          setError(`Failed to delete item: ${response.statusText}`);
+          return;
+      }
 
       onItemRemoval(item);
     } catch (err) {

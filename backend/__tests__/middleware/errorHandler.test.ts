@@ -1,5 +1,6 @@
-import request from 'supertest';
-import express, { Application, Request, Response, NextFunction } from 'express';
+import request = require('supertest');
+import express = require('express');
+import { Application, Request, Response, NextFunction } from 'express';
 import { ZodError, ZodIssueCode } from 'zod';
 import { errorHandler, HttpError } from '../../src/middleware/errorHandler';
 
@@ -14,7 +15,7 @@ const makeApp = (
 };
 
 describe('errorHandler middleware', () => {
-    it('should return 400 for ZodError with the validation message', async () => {
+    it('should return 400 for ZodError with the validation message', async (): Promise<void> => {
         const app = makeApp((_req, _res, next) => {
             const zodError = new ZodError([
                 { code: ZodIssueCode.custom, message: 'Name is required', path: ['name'] },
@@ -28,7 +29,7 @@ describe('errorHandler middleware', () => {
         expect(res.body.error).toBe('Name is required');
     });
 
-    it('should return the correct status for HttpError', async () => {
+    it('should return the correct status for HttpError', async (): Promise<void> => {
         const app = makeApp((_req, _res, next) => {
             next(new HttpError(404, 'Item not found'));
         });
@@ -39,7 +40,7 @@ describe('errorHandler middleware', () => {
         expect(res.body.error).toBe('Item not found');
     });
 
-    it('should return 500 for unknown errors', async () => {
+    it('should return 500 for unknown errors', async (): Promise<void> => {
         const app = makeApp((_req, _res, next) => {
             next(new Error('Unexpected crash'));
         });

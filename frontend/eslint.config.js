@@ -8,7 +8,6 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import prettier from "eslint-config-prettier";
 
 export default [
-  // Ignore build output, tooling configs, and test infrastructure
   {
     ignores: [
       "dist/**",
@@ -20,10 +19,8 @@ export default [
     ],
   },
 
-  // Base JS rules
   js.configs.recommended,
 
-  // TypeScript + React files
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
@@ -49,7 +46,6 @@ export default [
       react: { version: "detect" },
     },
     rules: {
-      // TypeScript
       ...tseslint.configs["recommended"].rules,
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/explicit-function-return-type": "warn",
@@ -62,28 +58,23 @@ export default [
         { prefer: "type-imports" },
       ],
 
-      // React
       ...reactPlugin.configs.recommended.rules,
       ...reactPlugin.configs["jsx-runtime"].rules,
-      "react/prop-types": "off", // Not needed with TypeScript
-      "react/react-in-jsx-scope": "off", // Not needed with React 17+
+      "react/prop-types": "off",
+      "react/react-in-jsx-scope": "off",
 
-      // React Hooks
       ...reactHooks.configs.recommended.rules,
 
-      // React Refresh
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
       ],
 
-      // General
       "no-console": ["warn", { allow: ["error", "warn"] }],
       "prefer-const": "error",
       eqeqeq: ["error", "always"],
     },
   },
 
-  // Prettier must be last to disable conflicting rules
   prettier,
 ];

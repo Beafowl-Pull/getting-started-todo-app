@@ -2,16 +2,18 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers/auth';
 
 test.describe('AddNewItemForm', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }): Promise<void> => {
         await loginAs(page);
-        await page.route('/api/greeting', (route) =>
-            route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({ greeting: 'Hello!' }),
-            }),
+        await page.route(
+            '/api/greeting',
+            (route): Promise<void> =>
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ greeting: 'Hello!' }),
+                }),
         );
-        await page.route('/api/items', (route) => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'GET') {
                 return route.fulfill({
                     status: 200,
@@ -23,7 +25,9 @@ test.describe('AddNewItemForm', () => {
         });
     });
 
-    test('the "Add Item" button is disabled when the input is empty', async ({ page }) => {
+    test('the "Add Item" button is disabled when the input is empty', async ({
+        page,
+    }): Promise<void> => {
         await page.goto('/');
 
         await expect(page.getByRole('button', { name: 'Add Item' })).toBeDisabled();
@@ -31,7 +35,7 @@ test.describe('AddNewItemForm', () => {
 
     test('the "Add Item" button is disabled when the input contains only whitespace', async ({
         page,
-    }) => {
+    }): Promise<void> => {
         await page.goto('/');
 
         await page.getByPlaceholder('New Item').fill('   ');
@@ -39,7 +43,9 @@ test.describe('AddNewItemForm', () => {
         await expect(page.getByRole('button', { name: 'Add Item' })).toBeDisabled();
     });
 
-    test('the "Add Item" button is enabled when the input has text', async ({ page }) => {
+    test('the "Add Item" button is enabled when the input has text', async ({
+        page,
+    }): Promise<void> => {
         await page.goto('/');
 
         await page.getByPlaceholder('New Item').fill('Buy milk');
@@ -47,8 +53,8 @@ test.describe('AddNewItemForm', () => {
         await expect(page.getByRole('button', { name: 'Add Item' })).toBeEnabled();
     });
 
-    test('adds a new item and clears the input on success', async ({ page }) => {
-        await page.route('/api/items', (route) => {
+    test('adds a new item and clears the input on success', async ({ page }): Promise<void> => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'POST') {
                 return route.fulfill({
                     status: 200,
@@ -73,13 +79,15 @@ test.describe('AddNewItemForm', () => {
         await expect(page.getByPlaceholder('New Item')).toHaveValue('');
     });
 
-    test('shows "Adding..." and disables the button while submitting', async ({ page }) => {
+    test('shows "Adding..." and disables the button while submitting', async ({
+        page,
+    }): Promise<void> => {
         let resolveRoute!: () => void;
         const routeBlocked = new Promise<void>((resolve) => {
             resolveRoute = resolve;
         });
 
-        await page.route('/api/items', async (route) => {
+        await page.route('/api/items', async (route): Promise<void> => {
             if (route.request().method() === 'POST') {
                 await routeBlocked;
                 return route.fulfill({
@@ -110,10 +118,10 @@ test.describe('AddNewItemForm', () => {
         await expect(page.getByRole('button', { name: 'Add Item' })).toBeVisible();
     });
 
-    test('shows an error message when the API call fails', async ({ page }) => {
-        await page.route('/api/items', (route) => {
+    test('shows an error message when the API call fails', async ({ page }): Promise<void> => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'POST') {
-                return route.fulfill({ status: 500, statusText: 'Internal Server Error' });
+                return route.fulfill({ status: 500 });
             }
             return route.fallback();
         });
@@ -130,8 +138,8 @@ test.describe('AddNewItemForm', () => {
 
     test('the input is re-enabled and "Add Item" button restored after an error', async ({
         page,
-    }) => {
-        await page.route('/api/items', (route) => {
+    }): Promise<void> => {
+        await page.route('/api/items', (route): Promise<void> => {
             if (route.request().method() === 'POST') {
                 return route.fulfill({ status: 500 });
             }

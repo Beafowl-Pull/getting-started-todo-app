@@ -7,6 +7,7 @@ export default defineConfig({
     retries: process.env.CI ? 2 : 0,
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
+    tsconfig: './tsconfig.test.json',
     use: {
         baseURL: 'http://localhost:3001',
         trace: 'on-first-retry',

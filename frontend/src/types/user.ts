@@ -2,7 +2,7 @@ export interface PublicUser {
   id: string;
   name: string;
   email: string;
-  created_at: string; // ISO 8601
+  created_at: string;
 }
 
 export interface AuthState {

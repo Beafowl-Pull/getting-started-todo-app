@@ -102,17 +102,15 @@ const init = async (): Promise<void> => {
         'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, user_id varchar(36)) DEFAULT CHARSET utf8mb4',
     );
 
-    // Migration: add user_id column if it doesn't exist (compatible with MySQL < 8.0.3)
     interface CountRow extends RowDataPacket { count: number; }
     const [countRow] = await query<CountRow[]>(
         `SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.COLUMNS
          WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'todo_items' AND COLUMN_NAME = 'user_id'`,
     );
+    if (!countRow) throw new Error('Failed to query INFORMATION_SCHEMA');
     if (countRow.count === 0) {
         await query('ALTER TABLE todo_items ADD COLUMN user_id VARCHAR(36)');
     }
-
-    // Add index on user_id if not exists (ignore error if it already exists)
     try {
         await query('CREATE INDEX idx_todo_items_user_id ON todo_items (user_id)');
     } catch {
@@ -141,8 +139,6 @@ const teardown = (): Promise<void> => {
         });
     });
 };
-
-// ---- Todo methods (scoped by userId) ----
 
 const getItems = (userId: string): Promise<TodoItem[]> => {
     return new Promise((resolve, reject) => {
@@ -208,8 +204,6 @@ const removeItem = (id: string, userId: string): Promise<boolean> => {
         );
     });
 };
-
-// ---- User methods ----
 
 const createUser = (user: User): Promise<void> => {
     return new Promise((resolve, reject) => {
