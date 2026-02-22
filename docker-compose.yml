@@ -16,6 +16,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_DB: todos
+      JWT_SECRET: dev-secret-change-in-production
     depends_on:
       mysql:
         condition: service_healthy
@@ -46,7 +47,7 @@ services:
       traefik.http.services.client.loadbalancer.server.port: 3001
 
   mysql:
-    image: mysql:9.3
+    image: mysql:9.6
     volumes:
       - todo-mysql-data:/var/lib/mysql
     environment: 

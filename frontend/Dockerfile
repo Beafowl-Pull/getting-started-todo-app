@@ -4,7 +4,7 @@ WORKDIR /usr/local/app
 FROM base AS frontend-base
 COPY ./package.json ./package-lock.json ./
 RUN npm install
-COPY .eslintrc.cjs ./index.html ./vite.config.ts ./
+COPY eslint.config.js ./index.html ./vite.config.ts ./
 COPY public ./public
 COPY src ./src
 
