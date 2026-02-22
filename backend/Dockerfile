@@ -8,7 +8,10 @@ COPY ./src ./src
 CMD ["npm", "run", "dev"]
 
 FROM backend-dev AS test
-RUN npm run test
+COPY jest.config.json ./
+COPY __tests__ ./__tests__
+COPY tsconfig.json tsconfig.test.json ./
+CMD ["npm", "run", "test"]
 
 FROM base AS final
 ENV NODE_ENV=production

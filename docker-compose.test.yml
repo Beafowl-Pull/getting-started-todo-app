@@ -1,0 +1,63 @@
+services:
+  proxy:
+    image: traefik:v3.6
+    command: --providers.docker
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  backend:
+    build:
+      context: ./backend
+      target: test
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+      JWT_SECRET: dev-secret-change-in-production
+    depends_on:
+      mysql:
+        condition: service_healthy
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /usr/local/app/src
+        - path: ./backend/package.json
+          action: rebuild
+    labels:
+      traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.services.backend.loadbalancer.server.port: 3000
+
+  frontend:
+    build:
+      context: ./frontend
+      target: test
+    develop:
+      watch:
+        - path: frontend/src
+          action: sync
+          target: /usr/local/app/src
+        - path: frontend/package.json
+          action: rebuild
+    labels:
+      traefik.http.routers.client.rule: Host(`localhost`)
+      traefik.http.services.client.loadbalancer.server.port: 3001
+
+  mysql:
+    image: mysql:9.6
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: todos
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  todo-mysql-data:

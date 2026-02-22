@@ -43,10 +43,6 @@ Simply open to [http://localhost](http://localhost) to see the app up and runnin
 Any changes made to either the backend or frontend should be seen immediately
 without needing to rebuild or restart the containers.
 
-To help with the database, the development stack also includes phpMyAdmin, which
-can be accessed at [http://db.localhost](http://db.localhost) (most browsers will 
-resolve `*.localhost` correctly, so no hosts file changes should be required).
-
 ### Tearing it down
 
 When you're done, simply remove the containers by running the following command:
@@ -54,3 +50,30 @@ When you're done, simply remove the containers by running the following command:
 ```
 docker compose down
 ```
+
+## Running tests
+To run the tests, simply run the following command:
+
+```
+docker compose -f docker-compose.test.yml up --build
+```
+
+This will run both the frontend and backend tests. You can also run them separately by running the following commands:
+
+```
+docker compose -f docker-compose.test.yml up --build frontend
+docker compose -f docker-compose.test.yml up --build backend
+```
+
+## Production
+To build the production image, simply run the following command:
+
+```
+docker build -t getting-started-todo-app:latest .
+```
+This will build the production image using the Dockerfile in the root of the project. You can then run the image using the following command:
+
+```
+docker run -p 80:80 getting-started-todo-app:latest
+```
+This will start the application on port 80. You can then access it by going to [http://localhost](http://localhost) in your browser.
