@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from './helpers/auth';
 
 test.describe('AddNewItemForm', () => {
     test.beforeEach(async ({ page }) => {
+        await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
                 status: 200,
@@ -51,7 +53,12 @@ test.describe('AddNewItemForm', () => {
                 return route.fulfill({
                     status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify({ id: '99', name: 'Buy milk', completed: false }),
+                    body: JSON.stringify({
+                        id: '99',
+                        name: 'Buy milk',
+                        completed: false,
+                        user_id: 'user-1',
+                    }),
                 });
             }
             return route.fallback();
@@ -78,7 +85,12 @@ test.describe('AddNewItemForm', () => {
                 return route.fulfill({
                     status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify({ id: '99', name: 'Buy milk', completed: false }),
+                    body: JSON.stringify({
+                        id: '99',
+                        name: 'Buy milk',
+                        completed: false,
+                        user_id: 'user-1',
+                    }),
                 });
             }
             return route.fallback();

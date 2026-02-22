@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons';
 import type { TodoItem } from '@models/todo';
+import { useApiFetch } from '../hooks/useApiFetch';
 import '@styles/ItemDisplay.scss';
 
 interface ItemDisplayProps {
@@ -17,15 +18,15 @@ interface ItemDisplayProps {
 }
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps): JSX.Element {
+  const apiFetch = useApiFetch();
   const [error, setError] = useState<string | null>(null);
 
   const toggleCompletion = async (): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`/api/items/${item.id}`, {
+      const response = await apiFetch(`/api/items/${item.id}`, {
         method: 'PUT',
         body: JSON.stringify({ name: item.name, completed: !item.completed }),
-        headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) throw new Error(`Failed to update item: ${response.statusText}`);
@@ -41,7 +42,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
   const removeItem = async (): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`/api/items/${item.id}`, { method: 'DELETE' });
+      const response = await apiFetch(`/api/items/${item.id}`, { method: 'DELETE' });
 
       if (!response.ok) throw new Error(`Failed to delete item: ${response.statusText}`);
 

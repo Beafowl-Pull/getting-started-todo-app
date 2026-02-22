@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from './helpers/auth';
 
 test.describe('App', () => {
     test.beforeEach(async ({ page }) => {
+        await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
                 status: 200,
@@ -46,5 +48,11 @@ test.describe('App', () => {
             page.getByRole('heading', { name: 'Welcome to your Todo App!' }),
         ).toBeVisible();
         await expect(page.getByPlaceholder('New Item')).toBeVisible();
+    });
+
+    test('shows the user menu with the user name', async ({ page }) => {
+        await page.goto('/');
+
+        await expect(page.getByRole('button', { name: 'Test User' })).toBeVisible();
     });
 });

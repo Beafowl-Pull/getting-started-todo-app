@@ -1,12 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from './helpers/auth';
 
 const MOCK_ITEMS = [
-    { id: '1', name: 'Buy groceries', completed: false },
-    { id: '2', name: 'Walk the dog', completed: true },
+    { id: '1', name: 'Buy groceries', completed: false, user_id: 'user-1' },
+    { id: '2', name: 'Walk the dog', completed: true, user_id: 'user-1' },
 ];
 
 test.describe('ItemDisplay', () => {
     test.beforeEach(async ({ page }) => {
+        await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
                 status: 200,
@@ -79,7 +81,12 @@ test.describe('ItemDisplay', () => {
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
-                body: JSON.stringify({ id: '1', name: 'Buy groceries', completed: true }),
+                body: JSON.stringify({
+                    id: '1',
+                    name: 'Buy groceries',
+                    completed: true,
+                    user_id: 'user-1',
+                }),
             }),
         );
 
@@ -99,7 +106,12 @@ test.describe('ItemDisplay', () => {
             route.fulfill({
                 status: 200,
                 contentType: 'application/json',
-                body: JSON.stringify({ id: '2', name: 'Walk the dog', completed: false }),
+                body: JSON.stringify({
+                    id: '2',
+                    name: 'Walk the dog',
+                    completed: false,
+                    user_id: 'user-1',
+                }),
             }),
         );
 
@@ -142,7 +154,9 @@ test.describe('ItemDisplay', () => {
                 return route.fulfill({
                     status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify([{ id: '1', name: 'Only item', completed: false }]),
+                    body: JSON.stringify([
+                        { id: '1', name: 'Only item', completed: false, user_id: 'user-1' },
+                    ]),
                 });
             }
             return route.continue();

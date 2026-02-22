@@ -4,12 +4,14 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import type { TodoItem } from '@models/todo';
+import { useApiFetch } from '../hooks/useApiFetch';
 
 interface AddItemFormProps {
     onNewItem: (item: TodoItem) => void;
 }
 
 export function AddItemForm({ onNewItem }: AddItemFormProps): JSX.Element {
+    const apiFetch = useApiFetch();
     const [newItem, setNewItem] = useState<string>('');
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -20,10 +22,9 @@ export function AddItemForm({ onNewItem }: AddItemFormProps): JSX.Element {
         setError(null);
 
         try {
-            const response = await fetch('/api/items', {
+            const response = await apiFetch('/api/items', {
                 method: 'POST',
                 body: JSON.stringify({ name: newItem.trim() }),
-                headers: { 'Content-Type': 'application/json' },
             });
 
             if (!response.ok) {

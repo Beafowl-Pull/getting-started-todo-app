@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from './helpers/auth';
 
 test.describe('TodoListCard', () => {
     test.beforeEach(async ({ page }) => {
+        await loginAs(page);
         await page.route('/api/greeting', (route) =>
             route.fulfill({
                 status: 200,

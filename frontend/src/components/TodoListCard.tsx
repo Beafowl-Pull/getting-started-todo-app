@@ -3,17 +3,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { AddItemForm } from './AddNewItemForm';
 import { ItemDisplay } from './ItemDisplay';
 import type { TodoItem } from '@models/todo';
+import { useApiFetch } from '../hooks/useApiFetch';
 
 type LoadingState = 'loading' | 'error' | 'success';
 
 export function TodoListCard(): JSX.Element {
+  const apiFetch = useApiFetch();
   const [items, setItems] = useState<TodoItem[]>([]);
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
 
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch('/api/items', { signal: controller.signal })
+    apiFetch('/api/items', { signal: controller.signal })
       .then(async (res): Promise<void> => {
         if (!res.ok) throw new Error(`Failed to fetch items: ${res.statusText}`);
         const data = (await res.json()) as TodoItem[];
@@ -27,6 +29,7 @@ export function TodoListCard(): JSX.Element {
       });
 
     return (): void => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onNewItem = useCallback((newItem: TodoItem): void => {
