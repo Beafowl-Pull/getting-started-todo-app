@@ -18,6 +18,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 3001,
+    allowedHosts: ["localhost", "todo.aureagames.com"],
     proxy: {
       "/api": {
         target: "http://backend:3000",

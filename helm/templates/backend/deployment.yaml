@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.imageCredentials.enabled }}
+      imagePullSecrets:
+        - name: {{ include "todo-app.fullname" . }}-registry
+      {{- end }}
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.backend.service.port | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.backend.nodeEnv | quote }}
+            - name: JWT_EXPIRES_IN
+              value: {{ .Values.backend.jwt.expiresIn | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.fullname" . }}-secret
+                  key: JWT_SECRET
+            - name: MYSQL_HOST
+              value: {{ include "mysql.fullname" . }}
+            - name: MYSQL_DB
+              value: {{ .Values.mysql.auth.database | quote }}
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mysql.fullname" . }}-secret
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mysql.fullname" . }}-secret
+                  key: MYSQL_PASSWORD
+          livenessProbe:
+            httpGet:
+              path: /api/greeting
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/greeting
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          {{- with .Values.backend.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

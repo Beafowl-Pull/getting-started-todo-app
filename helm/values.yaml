@@ -1,0 +1,71 @@
+imageCredentials:
+  enabled: true
+  registry: "harbor.aureagames.com"
+  username: "admin"
+  password: "T@mybba0907"
+
+frontend:
+  image:
+    repository: "harbor.aureagames.com/library/getting-started-todo-app-frontend"
+    tag: "latest"
+    pullPolicy: Always
+
+  replicaCount: 1
+
+  service:
+    type: ClusterIP
+    port: 3001
+
+  resources: {}
+
+backend:
+  image:
+    repository: "harbor.aureagames.com/library/getting-started-todo-app-backend"
+    tag: "latest"
+    pullPolicy: Always
+
+  replicaCount: 1
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  jwt:
+    secret: "wdmapfnapwfnawpfnawfaowfib"
+    expiresIn: "15m"
+
+  nodeEnv: "production"
+
+  resources: {}
+
+mysql:
+  image:
+    repository: mysql
+    tag: "9.6"
+    pullPolicy: IfNotPresent
+
+  auth:
+    rootPassword: "aefufpeuibawieufbawefb"
+    database: todos
+    user: "todouser"
+    password: "aoweufbaouwebfpawefbpawebuf"
+
+  storage:
+    size: 1Gi
+    storageClass: ""
+
+  resources: {}
+
+ingress:
+  enabled: true
+  className: "traefik"
+  host: "todo.aureagames.com"
+
+  annotations: {}
+  # Exemple avec cert-manager :
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  tls:
+    enabled: false
+    secretName: "todo-tls"

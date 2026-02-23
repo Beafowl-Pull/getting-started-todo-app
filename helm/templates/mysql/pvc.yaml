@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "mysql.fullname" . }}-data
+  labels:
+    {{- include "mysql.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mysql.storage.size }}
+  {{- if .Values.mysql.storage.storageClass }}
+  storageClassName: {{ .Values.mysql.storage.storageClass | quote }}
+  {{- end }}
